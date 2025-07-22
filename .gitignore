@@ -1,0 +1,15 @@
+# node
+node_modules/
+.env
+
+# Ignorar node_modules en frontend y backend
+/frontend-joseito/node_modules/
+/backend-joseito/node_modules/
+
+# build
+dist/
+build/
+
+# sistema operativo
+.DS_Store
+Thumbs.db
