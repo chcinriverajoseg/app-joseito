@@ -9,6 +9,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Matches from './pages/Matches';
 import ChatPage from './pages/ChatPage';
+import Explore from './pages/Explore'; // importa
+
 
 export default function App() {
   return (
@@ -24,6 +26,8 @@ export default function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/matches" element={<Matches />} />
             <Route path="/chat" element={<ChatPage />} />
+            // y en tus rutas
+             <Route path="/explore" element={<Explore />} />
           </Routes>
         </div>
       </div>
