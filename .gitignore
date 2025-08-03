@@ -1,15 +1,26 @@
-# node
+# Node.js
 node_modules/
 .env
+.env.local
+.env.*.local
 
-# Ignorar node_modules en frontend y backend
-/frontend-joseito/node_modules/
-/backend-joseito/node_modules/
-
-# build
+# Build
 dist/
 build/
 
-# sistema operativo
+# IDEs y editores
+.vscode/
+.idea/
+*.log
+
+# SO (Windows, macOS)
 .DS_Store
 Thumbs.db
+
+# Archivos temporales
+*.tmp
+*.swp
+
+# Evita que se suban dependencias en backend y frontend
+/frontend/node_modules/
+/backend/node_modules/

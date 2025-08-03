@@ -1,36 +1,18 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { UserProvider } from './context/UserContext';
-import Navbar from './components/Navbar';
-import Home from './pages/Home';
-import About from './pages/About';
-import Profile from './pages/Profile';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Matches from './pages/Matches';
-import ChatPage from './pages/ChatPage';
-import Explore from './pages/Explore'; // importa
+import React from "react";
+import { BrowserRouter } from "react-router-dom";
+import { UserProvider } from "@/context/UserContext";
+import AppRoutes from "@/routes/AppRoutes";
+import Navbar from "@/components/ui/Navbar";
 
-
-export default function App() {
+const App = () => {
   return (
-    //<BrowserRouter>
-      <div className="min-h-screen bg-gray-900 text-white">
+    <BrowserRouter>
+      <UserProvider>
         <Navbar />
-        <div className="p-4">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/matches" element={<Matches />} />
-            <Route path="/chat" element={<ChatPage />} />
-            // y en tus rutas
-             <Route path="/explore" element={<Explore />} />
-          </Routes>
-        </div>
-      </div>
-    //</BrowserRouter>
+        <AppRoutes />
+      </UserProvider>
+    </BrowserRouter>
   );
-}
+};
+
+export default App;
