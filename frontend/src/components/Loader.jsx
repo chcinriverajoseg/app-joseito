@@ -1,12 +1,10 @@
-// src/components/Loader.jsx
-import React from 'react';
-
-const Loader = () => {
+import React from 'react'
+export default function Loader({ label = 'Cargando...' }) {
   return (
-    <div className="flex justify-center items-center min-h-[200px]">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-500"></div>
+    <div className="flex items-center gap-3 p-4">
+      <span className="h-4 w-4 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
+      <span className="text-sm text-gray-500">{label}</span>
     </div>
-  );
-};
+  )
+}
 
-export default Loader;

@@ -1,34 +1,70 @@
 import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+
 import Home from "@/pages/Home";
-import Register from "@/pages/Register";
 import Login from "@/pages/Login";
+import Register from "@/pages/Register";
+
 import ExplorePage from "@/pages/ExplorePage";
 import MatchesPage from "@/pages/MatchesPage";
-import ProfilePage from "@/pages/ProfilePage";
 import ChatPage from "@/pages/ChatPage";
-import { useUser } from "@/context/UserContext";
+import ChatRoom from "@/pages/ChatRoom";
+import Perfil from "@/pages/Perfil";
 
-const AppRoutes = () => {
-  const { user } = useUser();
+import ProtectedRoute from "@/routes/ProtectedRoute";
 
-  return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/login" element={<Login />} />
-      {user ? (
-        <>
-          <Route path="/explore" element={<ExplorePage />} />
-          <Route path="/matches" element={<MatchesPage />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/chat" element={<ChatPage />} />
-        </>
-      ) : (
-        <Route path="*" element={<Navigate to="/login" />} />
-      )}
-    </Routes>
-  );
-};
+const AppRoutes = () => (
+  <Routes>
+    {/* Públicas */}
+    <Route path="/" element={<Home />} />
+    <Route path="/login" element={<Login />} />
+    <Route path="/register" element={<Register />} />
+
+    {/* Privadas */}
+    <Route
+      path="/explore"
+      element={
+        <ProtectedRoute>
+          <ExplorePage />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/matches"
+      element={
+        <ProtectedRoute>
+          <MatchesPage />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/perfil"
+      element={
+        <ProtectedRoute>
+          <Perfil />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/chat"
+      element={
+        <ProtectedRoute>
+          <ChatPage />
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/chat/:chatId"
+      element={
+        <ProtectedRoute>
+          <ChatRoom />
+        </ProtectedRoute>
+      }
+    />
+
+    {/* Fallback */}
+    <Route path="*" element={<div className="p-6">404 — Página no encontrada</div>} />
+  </Routes>
+);
 
 export default AppRoutes;

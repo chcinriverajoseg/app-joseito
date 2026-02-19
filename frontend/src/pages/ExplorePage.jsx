@@ -1,47 +1,45 @@
-// src/pages/ExplorePage.jsx
-import React, { useEffect, useState } from 'react';
-import { useUser } from '@/context/UserContext';
-import { fetchExploreProfiles } from '@/api/user';
-import UserCard from '@/components/ui/UserCard';
-import Loader from '@/components/ui/Loader';
-import ErrorMessage from '@/components/ui/ErrorMessage';
+import React, { useEffect, useState } from 'react'
+import { getExploreUsersApi, likeUserApi } from '@/api/auth'
+import Loader from '@/components/Loader'
+import UserCard from '@/components/UserCard'
+import ErrorMessage from '@/components/ErrorMessage'
 
-const ExplorePage = () => {
-  const { user } = useUser();
-  const [profiles, setProfiles] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+export default function ExplorePage() {
+  const [users, setUsers] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
-    const fetchProfiles = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchExploreProfiles(user.token);
-        setProfiles(data);
-        setError('');
-      } catch (err) {
-        console.error(err);
-        setError('Error al cargar perfiles.');
-      } finally {
-        setLoading(false);
-      }
-    };
+    getExploreUsersApi()
+      .then(setUsers)
+      .catch(() => setError('No se pudo cargar la lista'))
+      .finally(() => setLoading(false))
+  }, [])
 
-    if (user?.token) {
-      fetchProfiles();
+  const handleLike = async (id) => {
+    try {
+      await likeUserApi(id)
+      setUsers((arr) => arr.filter((u) => u._id !== id))
+    } catch (e) {
+      setError('No se pudo enviar el like')
     }
-  }, [user?.token]);
+  }
 
-  if (loading) return <Loader />;
-  if (error) return <ErrorMessage message={error} />;
+  if (loading) return <Loader label="Cargando perfiles..." />
 
   return (
-    <div className="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {profiles.map((profile) => (
-        <UserCard key={profile._id} user={profile} />
-      ))}
-    </div>
-  );
-};
-
-export default ExplorePage;
+    <section className="space-y-4">
+      <h1 className="text-2xl font-bold">Explorar</h1>
+      <ErrorMessage message={error} />
+      {users.length === 0 ? (
+        <p className="text-gray-600 dark:text-gray-300">No hay más usuarios por ahora.</p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {users.map((u) => (
+            <UserCard key={u._id} user={u} onLike={handleLike} />
+          ))}
+        </div>
+      )}
+    </section>
+  )
+}

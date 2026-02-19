@@ -1,32 +1,38 @@
-// src/context/UserContext.jsx
-import React, { createContext, useState, useEffect, useContext } from 'react';
 
-// Crear el contexto
-export const UserContext = createContext(null);
+/* eslint-disable */
 
-// Hook personalizado para usar el contexto
-export const useUser = () => {
-  return useContext(UserContext);
-};
 
-// Proveedor del contexto
-export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('user');
-    return storedUser ? JSON.parse(storedUser) : null;
-  });
+import React, { createContext, useEffect, useMemo, useState } from 'react'
+import { getProfileApi } from '@/api/auth'
+
+export const UserContext = createContext(null)
+
+export function UserProvider({ children }) {
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (user) {
-      localStorage.setItem('user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('user');
-    }
-  }, [user]);
+    const token = localStorage.getItem('token')
+    if (!token) { setLoading(false); return }
+    getProfileApi()
+      .then((u) => setUser(u))
+      .catch(() => { localStorage.removeItem('token') })
+      .finally(() => setLoading(false))
+  }, [])
 
-  return (
-    <UserContext.Provider value={{ user, setUser }}>
-      {children}
-    </UserContext.Provider>
-  );
-};
+  const login = (token, u) => {
+    localStorage.setItem('token', token)
+    setUser(u)
+  }
+
+  const logout = () => {
+    localStorage.removeItem('token')
+    setUser(null)
+  }
+
+  const value = useMemo(() => ({
+    user, setUser, login, logout, loading, isAuthenticated: !!user
+  }), [user, loading])
+
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>
+}

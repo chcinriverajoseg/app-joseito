@@ -1,97 +1,72 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import axios from '@/api/axios';
-import { useUserContext } from '@/context/UserContext';
+import React, { useEffect, useRef, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { getMessagesByChatIdApi, sendMessageByChatIdApi } from '@/api/auth'
+import Loader from '@/components/Loader'
+import ErrorMessage from '@/components/ErrorMessage'
+import MessageBubble from '@/components/MessageBubble'
+import Button from '@/components/Button'
 
-const ChatRoom = () => {
-  const { id } = useParams(); // ID del match
-  const { token, user } = useUserContext();
-  const [messages, setMessages] = useState([]);
-  const [matchInfo, setMatchInfo] = useState(null);
-  const [newMessage, setNewMessage] = useState('');
-  const [loading, setLoading] = useState(true);
+export default function ChatRoom() {
+  const { chatId } = useParams()
+  const [messages, setMessages] = useState([])
+  const [text, setText] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const bottomRef = useRef(null)
 
   const fetchMessages = async () => {
     try {
-      const res = await axios.get(`/messages/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setMessages(res.data.messages);
-      setMatchInfo(res.data.matchUser);
-    } catch (error) {
-      console.error('Error al cargar mensajes:', error);
+      const data = await getMessagesByChatIdApi(chatId)
+      setMessages(data)
+    } catch (e) {
+      setError('No se pudieron cargar los mensajes')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
-
-  const handleSend = async (e) => {
-    e.preventDefault();
-    if (!newMessage.trim()) return;
-
-    try {
-      const res = await axios.post(
-        `/messages/${id}`,
-        { text: newMessage },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setMessages((prev) => [...prev, res.data]);
-      setNewMessage('');
-    } catch (error) {
-      console.error('Error al enviar mensaje:', error);
-    }
-  };
+  }
 
   useEffect(() => {
-    fetchMessages();
-  }, [id]);
+    fetchMessages()
+    const id = setInterval(fetchMessages, 3000)
+    return () => clearInterval(id)
+  }, [chatId])
 
-  if (loading) return <div className="p-4">Cargando conversación...</div>;
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  const sendMessage = async (e) => {
+    e.preventDefault()
+    if (!text.trim()) return
+    try {
+      const msg = await sendMessageByChatIdApi(chatId, text.trim())
+      setMessages((prev) => [...prev, msg])
+      setText('')
+    } catch (e) {
+      setError('No se pudo enviar el mensaje')
+    }
+  }
+
+  if (loading) return <Loader label="Cargando conversación..." />
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4 text-center">
-        Chat con {matchInfo?.name || 'Usuario'}
-      </h2>
-
-      <div className="bg-white dark:bg-gray-900 rounded-lg p-4 h-96 overflow-y-auto mb-4 border border-gray-300 dark:border-gray-700">
-        {messages.map((msg) => (
-          <div
-            key={msg._id}
-            className={`mb-2 flex ${
-              msg.sender === user._id ? 'justify-end' : 'justify-start'
-            }`}
-          >
-            <div
-              className={`px-3 py-2 rounded-lg max-w-xs ${
-                msg.sender === user._id
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white'
-              }`}
-            >
-              {msg.text}
-            </div>
-          </div>
+    <section className="flex h-[70vh] flex-col rounded-2xl border bg-white dark:bg-gray-800">
+      <div className="flex-1 space-y-3 overflow-y-auto p-4">
+        {messages.map((m) => (
+          <MessageBubble key={m._id || m.createdAt} me={m.me} text={m.text || m.message} time={m.createdAt} />
         ))}
+        <div ref={bottomRef} />
       </div>
-
-      <form onSubmit={handleSend} className="flex gap-2">
+      <form onSubmit={sendMessage} className="border-t p-3 flex gap-2">
         <input
-          type="text"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
           placeholder="Escribe un mensaje..."
-          className="flex-1 px-4 py-2 border rounded-md dark:bg-gray-800 dark:text-white"
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
+          className="flex-1 rounded-2xl border px-3 py-2 bg-white/90 dark:bg-gray-900/60"
         />
-        <button
-          type="submit"
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-        >
-          Enviar
-        </button>
+        <Button type="submit">Enviar</Button>
       </form>
-    </div>
-  );
-};
-
-export default ChatRoom;
+      {error && <div className="p-2"><ErrorMessage message={error} /></div>}
+    </section>
+  )
+}

@@ -1,18 +1,14 @@
-import React from "react";
-import { BrowserRouter } from "react-router-dom";
-import { UserProvider } from "@/context/UserContext";
-import AppRoutes from "@/routes/AppRoutes";
-import Navbar from "@/components/ui/Navbar";
+import React from 'react'
+import Navbar from '@/ui/Navbar'
+import AppRoutes from '@/routes/AppRoutes'
 
-const App = () => {
+export default function App() {
   return (
-    <BrowserRouter>
-      <UserProvider>
-        <Navbar />
+    <div className="min-h-screen flex flex-col">
+      <Navbar />
+      <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-6">
         <AppRoutes />
-      </UserProvider>
-    </BrowserRouter>
-  );
-};
-
-export default App;
+      </main>
+    </div>
+  )
+}

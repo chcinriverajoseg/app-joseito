@@ -1,29 +1,41 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from '@/api/axios';
-import { useUser } from '@/context/UserContext';
+import React, { useState } from 'react'
+import { loginApi } from '@/api/auth'
+import { useNavigate, Link } from 'react-router-dom'
+import Input from '@/components/Input'
+import Button from '@/components/Button'
+import ErrorMessage from '@/components/ErrorMessage'
+import { useUser } from '@/context/useUser'
 
-const Login = () => {
-  const [form, setForm] = useState({ email: '', password: '' });
-  const navigate = useNavigate();
-  const { login } = useUser();
-
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+export default function Login() {
+  const navigate = useNavigate()
+  const { login } = useUser()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const res = await axios.post('/users/login', form);
-    login(res.data.user);
-    navigate('/explore');
-  };
+    e.preventDefault()
+    setError(''); setLoading(true)
+    try {
+      const { token, user } = await loginApi(email, password)
+      login(token, user)
+      navigate('/')
+    } catch (err) {
+      setError(err?.response?.data?.message || 'Credenciales inválidas')
+    } finally { setLoading(false) }
+  }
 
   return (
-    <form onSubmit={handleSubmit} className="p-6 space-y-4">
-      <input name="email" placeholder="Email" onChange={handleChange} className="border p-2" />
-      <input name="password" type="password" placeholder="Contraseña" onChange={handleChange} className="border p-2" />
-      <button type="submit" className="bg-green-500 text-white p-2">Iniciar sesión</button>
-    </form>
-  );
-};
-
-export default Login;
+    <section className="max-w-md mx-auto space-y-4">
+      <h1 className="text-2xl font-bold">Inicia sesión</h1>
+      <ErrorMessage message={error} />
+      <form onSubmit={handleSubmit} className="space-y-3">
+        <Input label="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <Input label="Contraseña" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <Button type="submit" disabled={loading}>{loading ? 'Entrando...' : 'Entrar'}</Button>
+      </form>
+      <p className="text-sm">¿Sin cuenta? <Link to="/register" className="underline">Regístrate</Link></p>
+    </section>
+  )
+}

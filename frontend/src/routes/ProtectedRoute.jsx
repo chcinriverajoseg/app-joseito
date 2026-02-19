@@ -1,16 +1,9 @@
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { useUser } from '../context/UserContext';
+import React from 'react'
+import { Navigate } from 'react-router-dom'
+import { useUser } from '@/context/useUser'
 
 export default function ProtectedRoute({ children }) {
-  const { user } = useUser();
-
-  if (!user) {
-    // Si no está logueado, redirige a login
-    return <Navigate to="/login" replace />;
-  }
-
-  // Si está logueado, renderiza la ruta protegida
-  return children;
+  const { isAuthenticated, loading } = useUser()
+  if (loading) return null
+  return isAuthenticated ? children : <Navigate to="/login" />
 }
-
