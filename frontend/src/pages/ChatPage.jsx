@@ -4,6 +4,7 @@ import Loader from '@/components/Loader'
 import ErrorMessage from '@/components/ErrorMessage'
 import { Link } from 'react-router-dom'
 
+
 export default function ChatPage() {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)

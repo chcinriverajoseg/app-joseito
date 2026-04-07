@@ -3,7 +3,8 @@
 
 
 import React, { createContext, useEffect, useMemo, useState } from 'react'
-import { getProfileApi } from '@/api/auth'
+import { loginApi, registerApi, getProfileApi } from '@/api/auth'
+
 
 export const UserContext = createContext(null)
 

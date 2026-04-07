@@ -1,51 +1,112 @@
-import api from './axios'
+import axios from 'axios'
 
-export async function loginApi(email, password) {
-  const { data } = await api.post('/auth/login', { email, password })
-  return data
+const API = 'http://localhost:4000'
+
+export const registerApi = async (data) => {
+  const response = await axios.post(`${API}/api/users/register`, data)
+  return response.data
 }
 
-export async function registerApi(payload) {
-  const { data } = await api.post('/auth/register', payload)
-  return data
+export const loginApi = async (email, password) => {
+  const response = await axios.post(`${API}/api/users/login`, {
+    email,
+    password,
+  })
+  return response.data
 }
 
-export async function getProfileApi() {
-  const { data } = await api.get('/users/me')
-  return data
+/* ===>COMENTARIO CAMBIO DE GETPROFILEAPI<====
+export const getProfileApi = async (token) => {
+  const response = await axios.get(`${API}/api/users/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+  return response.data
+}*/
+
+export const getProfileApi = async () => {
+  const token = localStorage.getItem('token')
+
+  const response = await axios.get(`${API}/api/users/me`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+
+  return response.data
 }
 
-export async function updateProfileApi(payload) {
-  const { data } = await api.put('/users/me', payload)
-  return data
+export const getMatchesApi = async () => {
+  const token = localStorage.getItem('token')
+  const response = await axios.get(`${API}/api/users/matches`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+  return response.data
 }
 
-export async function getExploreUsersApi() {
-  const { data } = await api.get('/users/explore')
-  return data
+export const getExploreUsersApi = async () => {
+  const token = localStorage.getItem('token')
+  const response = await axios.get(`${API}/api/users/explore`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+  return response.data
 }
 
-export async function likeUserApi(targetUserId) {
-  const { data } = await api.post(`/users/${targetUserId}/like`)
-  return data
+export const likeUserApi = async (id) => {
+  const token = localStorage.getItem('token')
+  const res = await axios.post(`${API}/api/users/like/${id}`, {}, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+  return res.data
 }
 
-export async function getMatchesApi() {
-  const { data } = await api.get('/users/matches')
-  return data
+export const getConversationsApi = async () => {
+  const token = localStorage.getItem('token')
+
+  const res = await axios.get(`${API}/api/users/conversations`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+
+  return res.data
 }
 
-export async function getConversationsApi() {
-  const { data } = await api.get('/chats')
-  return data
+
+export const getMessagesByChatIdApi = async (chatId) => {
+  const token = localStorage.getItem('token')
+  const res = await axios.get(`${API}/api/users/messages/${chatId}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+  return res.data
 }
 
-export async function getMessagesByChatIdApi(chatId) {
-  const { data } = await api.get(`/chats/${chatId}`)
-  return data
+export const sendMessageByChatIdApi = async (chatId, text) => {
+  const token = localStorage.getItem('token')
+  const res = await axios.post(`${API}/api/users/messages/${chatId}`, { text }, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+  return res.data
 }
 
-export async function sendMessageByChatIdApi(chatId, message) {
-  const { data } = await api.post(`/chats/${chatId}`, { message })
-  return data
+
+export const updateProfileApi = async (data) => {
+  const token = localStorage.getItem('token')
+
+  const res = await axios.put(
+    `${API}/api/users/me`,
+    data,
+    {
+      headers: {
+         Authorization: `Bearer ${token}`
+      }
+    }
+  )
+
+  return res.data
 }

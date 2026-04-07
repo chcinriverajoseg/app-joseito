@@ -1,20 +1,32 @@
-// backend/routes/userRoutes.js
-import express from 'express';
+import express from 'express'
 import {
   registerUser,
   loginUser,
   getCurrentUser,
+  getExploreUsers,
   likeUser,
   getMatches,
-} from '../controllers/userController.js';
-import { authenticateToken } from '../middleware/authMiddleware.js';
+  getMessagesByChatId,
+  sendMessageByChatId,
+  updateUserProfile,
+  getConversations   // 👈 AQUÍ
+} from '../controllers/userController.js'
 
-const router = express.Router();
+import { authenticateToken } from '../middleware/authMiddleware.js'
 
-router.post('/register', registerUser);
-router.post('/login', loginUser);
-router.get('/me', authenticateToken, getCurrentUser);
-router.post('/like/:id', authenticateToken, likeUser);
-router.get('/matches', authenticateToken, getMatches);
+const router = express.Router()
 
-export default router;
+router.post('/register', registerUser)
+router.post('/login', loginUser)
+router.get('/me', authenticateToken, getCurrentUser)
+router.get('/explore', authenticateToken, getExploreUsers) // 👈 AGREGA ESTO
+
+router.post('/like/:id', authenticateToken, likeUser)
+router.get('/matches', authenticateToken, getMatches)
+router.get('/messages/:chatId', authenticateToken, getMessagesByChatId)
+router.post('/messages/:chatId', authenticateToken, sendMessageByChatId)
+router.get('/conversations', authenticateToken, getConversations)
+router.put('/me', authenticateToken, updateUserProfile)
+
+
+export default router

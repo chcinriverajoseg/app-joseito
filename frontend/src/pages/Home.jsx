@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <section className="space-y-3">
       <h1 className="text-2xl font-bold">Hola {user?.name ?? '👋'}</h1>
-      <p className="text-gray-600 dark:text-gray-300">Bienvenido a app-joseito. Explora, haz match y chatea.</p>
+      <p className="text-cyan-600 dark:text-cyan-700">Bienvenido a app-joseito. Explora, haz match y chatea.</p>
     </section>
   )
 }

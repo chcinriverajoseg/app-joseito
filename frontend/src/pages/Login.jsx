@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { loginApi } from '@/api/auth'
+import { loginApi, registerApi } from '@/api/auth'
+
 import { useNavigate, Link } from 'react-router-dom'
 import Input from '@/components/Input'
 import Button from '@/components/Button'

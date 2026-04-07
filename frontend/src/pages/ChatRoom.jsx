@@ -5,6 +5,9 @@ import Loader from '@/components/Loader'
 import ErrorMessage from '@/components/ErrorMessage'
 import MessageBubble from '@/components/MessageBubble'
 import Button from '@/components/Button'
+import { io } from 'socket.io-client'
+
+const socket = io('http://localhost:4000')
 
 export default function ChatRoom() {
   const { chatId } = useParams()
@@ -14,21 +17,24 @@ export default function ChatRoom() {
   const [error, setError] = useState('')
   const bottomRef = useRef(null)
 
-  const fetchMessages = async () => {
-    try {
-      const data = await getMessagesByChatIdApi(chatId)
-      setMessages(data)
-    } catch (e) {
-      setError('No se pudieron cargar los mensajes')
-    } finally {
-      setLoading(false)
-    }
-  }
-
   useEffect(() => {
-    fetchMessages()
-    const id = setInterval(fetchMessages, 3000)
-    return () => clearInterval(id)
+    // Unirse a la sala del chat
+    socket.emit('join_chat', chatId)
+
+    // Cargar mensajes existentes
+    getMessagesByChatIdApi(chatId)
+      .then(setMessages)
+      .catch(() => setError('No se pudieron cargar los mensajes'))
+      .finally(() => setLoading(false))
+
+    // Escuchar mensajes nuevos en tiempo real
+    socket.on('new_message', (msg) => {
+      setMessages((prev) => [...prev, msg])
+    })
+
+    return () => {
+      socket.off('new_message')
+    }
   }, [chatId])
 
   useEffect(() => {
@@ -53,7 +59,7 @@ export default function ChatRoom() {
     <section className="flex h-[70vh] flex-col rounded-2xl border bg-white dark:bg-gray-800">
       <div className="flex-1 space-y-3 overflow-y-auto p-4">
         {messages.map((m) => (
-          <MessageBubble key={m._id || m.createdAt} me={m.me} text={m.text || m.message} time={m.createdAt} />
+          <MessageBubble key={m._id || m.createdAt} me={m.me} text={m.text} time={m.createdAt} />
         ))}
         <div ref={bottomRef} />
       </div>
