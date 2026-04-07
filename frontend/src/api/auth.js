@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API = 'http://localhost:4000'
+const API = 'https://app-joseito-backend.onrender.com'
 
 export const registerApi = async (data) => {
   const response = await axios.post(`${API}/api/users/register`, data)
